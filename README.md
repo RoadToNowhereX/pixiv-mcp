@@ -39,7 +39,7 @@ export PIXIV_REFRESH_TOKEN="your_refresh_token_here"
 
 ### 3. 启动服务器
 
-**HTTP服务器（推荐）**：
+**HTTP服务器**：
 ```bash
 python start_http_server.py \
   --host 0.0.0.0 \
@@ -49,16 +49,21 @@ python start_http_server.py \
   --log-level info
 ```
 
-### 4. 在Claude Desktop中使用
+### 4. 在Claude Desktop中使用（stdio）
 
 更新你的 `claude_desktop_config.json`：
 
 ```json
 {
   "mcpServers": {
-    "pixiv": {
-      "command": "python",
-      "args": ["start_http_server.py"],
+    "pixiv-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/your/pixiv-mcp-server",
+        "run",
+        "pixiv-mcp"
+      ],
       "env": {
         "PIXIV_REFRESH_TOKEN": "your_token_here"
       }
