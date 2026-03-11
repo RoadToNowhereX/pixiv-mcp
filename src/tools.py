@@ -299,20 +299,20 @@ async def search_illust(params: SearchIllustParams) -> List[Dict[str, Any]]:
                 "user": {
                     "id": illust.user.id,
                     "name": illust.user.name,
-                    "account": illust.user.account,
+                    # "account": illust.user.account,
                 },
                 "tags": [tag.name for tag in illust.tags],
-                "create_date": illust.create_date,
-                "page_count": illust.page_count,
-                "width": illust.width,
-                "height": illust.height,
+                # "create_date": illust.create_date,
+                # "page_count": illust.page_count,
+                # "width": illust.width,
+                # "height": illust.height,
                 "total_view": illust.total_view,
                 "total_bookmarks": illust.total_bookmarks,
-                "urls": {
-                    "square_medium": illust.image_urls.square_medium,
-                    "medium": illust.image_urls.medium,
-                    "large": illust.image_urls.large,
-                },
+                # "urls": {
+                #     "square_medium": illust.image_urls.square_medium,
+                #     "medium": illust.image_urls.medium,
+                #     "large": illust.image_urls.large,
+                # },
                 "is_r18": any(tag.name in ["R-18", "R-18G"] for tag in illust.tags),
             })
         
@@ -347,14 +347,14 @@ async def illust_ranking(params: IllustRankingParams) -> List[Dict[str, Any]]:
                     "account": illust.user.account,
                 },
                 "tags": [tag.name for tag in illust.tags],
-                "create_date": illust.create_date,
+                # "create_date": illust.create_date,
                 "total_view": illust.total_view,
                 "total_bookmarks": illust.total_bookmarks,
-                "urls": {
-                    "square_medium": illust.image_urls.square_medium,
-                    "medium": illust.image_urls.medium,
-                    "large": illust.image_urls.large,
-                },
+                # "urls": {
+                #     "square_medium": illust.image_urls.square_medium,
+                #     "medium": illust.image_urls.medium,
+                #     "large": illust.image_urls.large,
+                # },
             })
         
         return illusts
@@ -375,6 +375,7 @@ async def illust_detail(params: IllustDetailParams) -> Dict[str, Any]:
         illust = result.illust
         
         # 处理多页作品
+        """
         meta_pages = []
         if hasattr(illust, 'meta_pages') and illust.meta_pages:
             for page in illust.meta_pages:
@@ -386,7 +387,7 @@ async def illust_detail(params: IllustDetailParams) -> Dict[str, Any]:
                         "original": page.image_urls.original if hasattr(page.image_urls, 'original') else None,
                     }
                 })
-        
+        """
         return {
             "id": illust.id,
             "title": illust.title,
@@ -394,26 +395,26 @@ async def illust_detail(params: IllustDetailParams) -> Dict[str, Any]:
             "user": {
                 "id": illust.user.id,
                 "name": illust.user.name,
-                "account": illust.user.account,
-                "profile_image_urls": illust.user.profile_image_urls,
+                # "account": illust.user.account,
+                # "profile_image_urls": illust.user.profile_image_urls,
             },
             "tags": [{"name": tag.name, "translated_name": tag.translated_name} for tag in illust.tags],
-            "tools": illust.tools,
-            "create_date": illust.create_date,
-            "page_count": illust.page_count,
-            "width": illust.width,
-            "height": illust.height,
+            # "tools": illust.tools,
+            # "create_date": illust.create_date,
+            # "page_count": illust.page_count,
+            # "width": illust.width,
+            # "height": illust.height,
             "sanity_level": illust.sanity_level,
             "x_restrict": illust.x_restrict,
             "total_view": illust.total_view,
             "total_bookmarks": illust.total_bookmarks,
             "is_bookmarked": illust.is_bookmarked,
-            "urls": {
-                "square_medium": illust.image_urls.square_medium,
-                "medium": illust.image_urls.medium,
-                "large": illust.image_urls.large,
-            },
-            "meta_pages": meta_pages,
+            # "urls": {
+            #     "square_medium": illust.image_urls.square_medium,
+            #     "medium": illust.image_urls.medium,
+            #     "large": illust.image_urls.large,
+            # },
+            # "meta_pages": meta_pages,
         }
         
     except Exception as e:
@@ -488,17 +489,17 @@ async def user_illusts(params: UserIllustsParams) -> List[Dict[str, Any]]:
                 "title": illust.title,
                 "caption": illust.caption,
                 "tags": [tag.name for tag in illust.tags],
-                "create_date": illust.create_date,
-                "page_count": illust.page_count,
-                "width": illust.width,
-                "height": illust.height,
+                # "create_date": illust.create_date,
+                # "page_count": illust.page_count,
+                # "width": illust.width,
+                # "height": illust.height,
                 "total_view": illust.total_view,
                 "total_bookmarks": illust.total_bookmarks,
-                "urls": {
-                    "square_medium": illust.image_urls.square_medium,
-                    "medium": illust.image_urls.medium,
-                    "large": illust.image_urls.large,
-                },
+                # "urls": {
+                #     "square_medium": illust.image_urls.square_medium,
+                #     "medium": illust.image_urls.medium,
+                #     "large": illust.image_urls.large,
+                # },
             })
         
         return illusts
@@ -616,11 +617,11 @@ async def novel_text(params: NovelTextParams) -> Dict[str, Any]:
         response = {
             "novel_id": params.novel_id,
             "text": text,
-            "text_length": len(text),
+            # "text_length": len(text),
             "title": getattr(result, 'title', ''),
             "description": getattr(result, 'description', ''),
             "author_name": getattr(result, 'author_name', '') or getattr(result, 'userName', ''),
-            "create_date": getattr(result, 'create_date', ''),
+            # "create_date": getattr(result, 'create_date', ''),
             "bookmark_count": getattr(result, 'bookmark_count', 0),
             "comment_count": getattr(result, 'comment_count', 0),
             "total_view": getattr(result, 'total_view', 0) or getattr(result, 'viewCount', 0),
@@ -840,18 +841,18 @@ async def illust_follow(params: IllustFollowParams) -> List[Dict[str, Any]]:
                 "user": {
                     "id": illust.user.id,
                     "name": illust.user.name,
-                    "account": illust.user.account,
+                    # "account": illust.user.account,
                 },
                 "tags": [tag.name for tag in illust.tags],
-                "create_date": illust.create_date,
-                "page_count": illust.page_count,
+                # "create_date": illust.create_date,
+                # "page_count": illust.page_count,
                 "total_view": illust.total_view,
                 "total_bookmarks": illust.total_bookmarks,
-                "urls": {
-                    "square_medium": illust.image_urls.square_medium,
-                    "medium": illust.image_urls.medium,
-                    "large": illust.image_urls.large,
-                },
+                # "urls": {
+                #     "square_medium": illust.image_urls.square_medium,
+                #     "medium": illust.image_urls.medium,
+                #     "large": illust.image_urls.large,
+                # },
                 "is_r18": any(tag.name in ["R-18", "R-18G"] for tag in illust.tags),
             })
         
@@ -883,8 +884,8 @@ async def illust_comments(params: IllustCommentsParams) -> List[Dict[str, Any]]:
                 "user": {
                     "id": comment.user.id,
                     "name": comment.user.name,
-                    "account": comment.user.account,
-                    "profile_image_urls": comment.user.profile_image_urls,
+                    # "account": comment.user.account,
+                    # "profile_image_urls": comment.user.profile_image_urls,
                 },
                 "parent_comment": {
                     "id": comment.parent_comment.id,
@@ -919,18 +920,18 @@ async def illust_related(params: IllustRelatedParams) -> List[Dict[str, Any]]:
                 "user": {
                     "id": illust.user.id,
                     "name": illust.user.name,
-                    "account": illust.user.account,
+                    # "account": illust.user.account,
                 },
                 "tags": [tag.name for tag in illust.tags],
-                "create_date": illust.create_date,
-                "page_count": illust.page_count,
+                # "create_date": illust.create_date,
+                # "page_count": illust.page_count,
                 "total_view": illust.total_view,
                 "total_bookmarks": illust.total_bookmarks,
-                "urls": {
-                    "square_medium": illust.image_urls.square_medium,
-                    "medium": illust.image_urls.medium,
-                    "large": illust.image_urls.large,
-                },
+                # "urls": {
+                #     "square_medium": illust.image_urls.square_medium,
+                #     "medium": illust.image_urls.medium,
+                #     "large": illust.image_urls.large,
+                # },
                 "is_r18": any(tag.name in ["R-18", "R-18G"] for tag in illust.tags),
             })
         
@@ -958,18 +959,18 @@ async def illust_recommended(params: IllustRecommendedParams) -> List[Dict[str, 
                 "user": {
                     "id": illust.user.id,
                     "name": illust.user.name,
-                    "account": illust.user.account,
+                    # "account": illust.user.account,
                 },
                 "tags": [tag.name for tag in illust.tags],
-                "create_date": illust.create_date,
-                "page_count": illust.page_count,
+                # "create_date": illust.create_date,
+                # "page_count": illust.page_count,
                 "total_view": illust.total_view,
                 "total_bookmarks": illust.total_bookmarks,
-                "urls": {
-                    "square_medium": illust.image_urls.square_medium,
-                    "medium": illust.image_urls.medium,
-                    "large": illust.image_urls.large,
-                },
+                # "urls": {
+                #     "square_medium": illust.image_urls.square_medium,
+                #     "medium": illust.image_urls.medium,
+                #     "large": illust.image_urls.large,
+                # },
                 "is_r18": any(tag.name in ["R-18", "R-18G"] for tag in illust.tags),
             })
         
@@ -997,16 +998,20 @@ async def novel_recommended(params: NovelRecommendedParams) -> List[Dict[str, An
                 "user": {
                     "id": novel.user.id,
                     "name": novel.user.name,
-                    "account": novel.user.account,
+                    # "account": novel.user.account,
                 },
                 "tags": [tag.name for tag in novel.tags],
-                "create_date": novel.create_date,
-                "page_count": novel.page_count,
-                "text_length": novel.text_length,
+                # "create_date": novel.create_date,
+                # "page_count": novel.page_count,
+                # "text_length": novel.text_length,
                 "total_view": novel.total_view,
                 "total_bookmarks": novel.total_bookmarks,
                 "is_original": novel.is_original if hasattr(novel, 'is_original') else False,
-                "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
+                # "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
+                "series": {
+                    "id": novel.series.id,
+                    "title": novel.series.title,
+                } if hasattr(novel, 'series') and novel.series else None,
             })
         
         return novels
@@ -1040,16 +1045,20 @@ async def search_novel(params: SearchNovelParams) -> List[Dict[str, Any]]:
                 "user": {
                     "id": novel.user.id,
                     "name": novel.user.name,
-                    "account": novel.user.account,
+                    # "account": novel.user.account,
                 },
                 "tags": [tag.name for tag in novel.tags],
-                "create_date": novel.create_date,
-                "page_count": novel.page_count,
-                "text_length": novel.text_length,
+                # "create_date": novel.create_date,
+                # "page_count": novel.page_count,
+                # "text_length": novel.text_length,
                 "total_view": novel.total_view,
                 "total_bookmarks": novel.total_bookmarks,
                 "is_original": novel.is_original if hasattr(novel, 'is_original') else False,
-                "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
+                # "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
+                "series": {
+                    "id": novel.series.id,
+                    "title": novel.series.title,
+                } if hasattr(novel, 'series') and novel.series else None,
             })
         
         return novels
@@ -1396,9 +1405,9 @@ async def novel_series(params: NovelSeriesParams) -> Dict[str, Any]:
                 "title": novel.title,
                 "caption": novel.caption,
                 "tags": [tag.name for tag in novel.tags],
-                "create_date": novel.create_date,
-                "page_count": novel.page_count,
-                "text_length": novel.text_length,
+                # "create_date": novel.create_date,
+                # "page_count": novel.page_count,
+                # "text_length": novel.text_length,
                 "total_view": novel.total_view,
                 "total_bookmarks": novel.total_bookmarks,
             })
@@ -1413,7 +1422,7 @@ async def novel_series(params: NovelSeriesParams) -> Dict[str, Any]:
                 "is_original": detail.is_original if hasattr(detail, 'is_original') else False,
                 "is_concluded": detail.is_concluded if hasattr(detail, 'is_concluded') else False,
                 "content_count": detail.content_count if hasattr(detail, 'content_count') else 0,
-                "total_character_count": detail.total_character_count if hasattr(detail, 'total_character_count') else 0,
+                # "total_character_count": detail.total_character_count if hasattr(detail, 'total_character_count') else 0,
             }
         
         return {
@@ -1443,18 +1452,18 @@ async def novel_detail(params: NovelDetailParams) -> Dict[str, Any]:
             "user": {
                 "id": novel.user.id,
                 "name": novel.user.name,
-                "account": novel.user.account,
-                "profile_image_urls": novel.user.profile_image_urls,
+                # "account": novel.user.account,
+                # "profile_image_urls": novel.user.profile_image_urls,
             },
             "tags": [{"name": tag.name, "translated_name": tag.translated_name} for tag in novel.tags],
-            "create_date": novel.create_date,
-            "page_count": novel.page_count,
-            "text_length": novel.text_length,
+            # "create_date": novel.create_date,
+            # "page_count": novel.page_count,
+            # "text_length": novel.text_length,
             "total_view": novel.total_view,
             "total_bookmarks": novel.total_bookmarks,
             "is_bookmarked": novel.is_bookmarked if hasattr(novel, 'is_bookmarked') else False,
             "is_original": novel.is_original if hasattr(novel, 'is_original') else False,
-            "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
+            # "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
             "series": {
                 "id": novel.series.id,
                 "title": novel.series.title,
@@ -1523,11 +1532,11 @@ async def illust_new(params: IllustNewParams) -> List[Dict[str, Any]]:
                 "user": {
                     "id": illust.user.id,
                     "name": illust.user.name,
-                    "account": illust.user.account,
+                    # "account": illust.user.account,
                 },
                 "tags": [tag.name for tag in illust.tags],
-                "create_date": illust.create_date,
-                "page_count": illust.page_count,
+                # "create_date": illust.create_date,
+                # "page_count": illust.page_count,
                 "total_view": illust.total_view,
                 "total_bookmarks": illust.total_bookmarks,
                 "urls": {
@@ -1562,16 +1571,16 @@ async def novel_new(params: NovelNewParams) -> List[Dict[str, Any]]:
                 "user": {
                     "id": novel.user.id,
                     "name": novel.user.name,
-                    "account": novel.user.account,
+                    # "account": novel.user.account,
                 },
                 "tags": [tag.name for tag in novel.tags],
-                "create_date": novel.create_date,
-                "page_count": novel.page_count,
-                "text_length": novel.text_length,
+                # "create_date": novel.create_date,
+                # "page_count": novel.page_count,
+                # "text_length": novel.text_length,
                 "total_view": novel.total_view,
                 "total_bookmarks": novel.total_bookmarks,
                 "is_original": novel.is_original if hasattr(novel, 'is_original') else False,
-                "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
+                # "image_urls": novel.image_urls if hasattr(novel, 'image_urls') else {},
             })
         
         return novels
