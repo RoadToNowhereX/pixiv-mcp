@@ -4,6 +4,7 @@ Pixiv MCP Server - Tools Implementation
 """
 
 import asyncio
+import json
 import os
 import tempfile
 import random
@@ -269,6 +270,12 @@ class ShowcaseArticleParams(BaseModel):
 
 class UserBookmarkTagsParams(BaseModel):
     restrict: str = Field(default="public", description="限制类型: public(公开), private(私人)")
+
+
+class SortAndSendNovelResultsParams(BaseModel):
+    """整理并格式化小说搜索结果为HTML卡片"""
+    novels_json: str = Field(description="小说搜索结果的JSON字符串（从其他小说相关工具获取的原始结果，直接JSON序列化后传入）")
+    sort_by_bookmarks: bool = Field(default=True, description="是否按收藏数(total_bookmarks)从高到低排序，默认为True")
 
 
 # ==================== Tool Functions ====================
@@ -1615,6 +1622,89 @@ async def showcase_article(params: ShowcaseArticleParams) -> Dict[str, Any]:
         raise Exception(f"获取特辑详情失败: {str(e)}")
 
 
+async def sort_and_send_novel_results(params: SortAndSendNovelResultsParams) -> str:
+    """整理小说搜索结果并格式化为HTML卡片"""
+    try:
+        novels = json.loads(params.novels_json)
+        if not isinstance(novels, list):
+            raise ValueError("输入必须是小说结果的JSON数组")
+
+        if not novels:
+            return "没有找到小说结果。"
+
+        # 按收藏数排序
+        if params.sort_by_bookmarks:
+            novels.sort(key=lambda x: x.get("total_bookmarks", 0), reverse=True)
+
+        cards = []
+        for novel in novels:
+            novel_id = novel.get("id", "")
+            title = novel.get("title", "无标题")
+            caption = novel.get("caption", "") or ""
+            total_bookmarks = novel.get("total_bookmarks", 0)
+
+            # 用户信息
+            user_info = novel.get("user", {})
+            author_name = user_info.get("name", "未知作者")
+            author_id = user_info.get("id", "")
+
+            # 系列信息
+            series_info = novel.get("series", None)
+
+            # 标签处理：将 / 替换为 %2F
+            tags = novel.get("tags", [])
+            tag_links = []
+            for tag in tags:
+                tag_escaped = str(tag).replace("/", "%2F")
+                tag_links.append(
+                    f'<a href="https://www.pixiv.net/tags/{tag_escaped}/novels" '
+                    f'target="_blank" style="display: inline-block; text-decoration: none; '
+                    f'background-color: rgba(128,128,128,0.12); padding: 2px 8px; '
+                    f'border-radius: 6px; margin: 2px 3px;">{tag}</a>'
+                )
+
+            # 构建链接
+            work_link = f"https://www.pixiv.net/novel/show.php?id={novel_id}"
+            author_link = f"https://www.pixiv.net/users/{author_id}"
+
+            # 构建HTML卡片
+            card_html = '<div style="border: 1px solid rgba(128,128,128,0.3); border-radius: 10px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">\n'
+
+            # 系列行（仅在有系列时显示）
+            if series_info and series_info.get("id"):
+                series_id = series_info.get("id", "")
+                series_title = series_info.get("title", "")
+                series_link = f"https://www.pixiv.net/novel/series/{series_id}"
+                card_html += f'  <div style="margin-bottom: 8px;"><b>📚 系列：</b><a href="{series_link}" target="_blank" style="text-decoration: none; color: gray;">{series_title}</a></div>\n'
+
+            # 标题
+            card_html += f'  <h3 style="margin: 0 0 12px 0;"><a href="{work_link}" target="_blank" style="text-decoration: none; color: black;">{title}</a></h3>\n'
+
+            # 作者
+            card_html += f'  <div style="margin-bottom: 8px;"><b>👤 作者：</b><a href="{author_link}" target="_blank" style="text-decoration: none;">{author_name}</a></div>\n'
+
+            # 标签
+            tags_html = " ".join(tag_links)
+            card_html += f'  <div style="margin-bottom: 12px;"><b>🏷️ 标签：</b>{tags_html}</div>\n'
+
+            # 收藏数
+            card_html += f'  <div style="margin-bottom: 8px;">❤️ 收藏：{total_bookmarks}</div>\n'
+
+            # 简介（可折叠）
+            if caption:
+                card_html += f'  <details><summary style="cursor: pointer;"><b>📝 点击展开简介</b></summary><div style="margin-top: 10px; padding: 12px; background-color: rgba(128,128,128,0.08); border-radius: 8px; white-space: pre-wrap; line-height: 1.6; font-size: 0.95em;">{caption}</div></details>\n'
+
+            card_html += '</div>'
+            cards.append(card_html)
+
+        return "\n\n---\n\n".join(cards)
+
+    except json.JSONDecodeError as e:
+        raise Exception(f"JSON解析失败: {str(e)}")
+    except Exception as e:
+        raise Exception(f"格式化小说结果失败: {str(e)}")
+
+
 # ==================== Tools Registry ====================
 
 TOOLS = [
@@ -1802,6 +1892,11 @@ TOOLS = [
         inputSchema=GetCurrentTimeParams.model_json_schema(),
     ),
     Tool(
+        name="sort_and_send_novel_results",
+        description="将小说搜索/推荐等工具返回的结果整理为HTML卡片格式。自动按收藏数从高到低排序，自动处理标签URL转义。使用方法：将其他小说工具返回的结果JSON序列化后作为novels_json参数传入，将返回值直接发送给用户即可。",
+        inputSchema=SortAndSendNovelResultsParams.model_json_schema(),
+    ),
+    Tool(
         name="test_date_ranges",
         description="测试不同的日期范围，检查Pixiv API是否对搜索时间范围有限制",
         inputSchema=SearchIllustParams.model_json_schema(),
@@ -1889,6 +1984,8 @@ async def dispatch(name: str, arguments: dict) -> Any:
             return await showcase_article(ShowcaseArticleParams(**arguments))
         elif name == "get_current_time":
             return await get_current_time(GetCurrentTimeParams(**arguments))
+        elif name == "sort_and_send_novel_results":
+            return await sort_and_send_novel_results(SortAndSendNovelResultsParams(**arguments))
         elif name == "test_date_ranges":
             # 特殊的测试工具，直接调用搜索功能但添加调试信息
             result = await search_illust(SearchIllustParams(**arguments))
