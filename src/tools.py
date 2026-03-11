@@ -341,6 +341,7 @@ async def illust_ranking(params: IllustRankingParams) -> List[Dict[str, Any]]:
                 "rank": i + 1,
                 "id": illust.id,
                 "title": illust.title,
+                "caption": illust.caption if hasattr(illust, 'caption') and illust.caption else None,
                 "user": {
                     "id": illust.user.id,
                     "name": illust.user.name,
